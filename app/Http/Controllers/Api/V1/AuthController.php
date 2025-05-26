@@ -16,7 +16,15 @@ class AuthController extends BaseApiController
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -54,6 +62,9 @@ class AuthController extends BaseApiController
             return $this->errorResponse('Invalid credentials', 401);
         }
 
+        // Invalidate all other tokens
+        $user->tokens()->delete();
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return $this->successResponse([
@@ -64,7 +75,8 @@ class AuthController extends BaseApiController
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        // Revoke all tokens
+        $request->user()->tokens()->delete();
         return $this->successResponse(null, 'Logged out successfully');
     }
 
