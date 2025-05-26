@@ -187,21 +187,54 @@ Common HTTP status codes:
 
 ## Security
 
-- API uses Laravel Sanctum for authentication
-- Implements token-based authentication
-- CORS configured for frontend applications
-- Password validation and hashing
-- Protection against common web vulnerabilities
+The API implements multiple layers of security to protect against various threats:
+
+### Authentication & Authorization
+- **Laravel Sanctum**: Implements token-based authentication for API requests
+- **Token Management**: Secure token generation and validation for API access
+- **Stateless Authentication**: Pure API token authentication for stateless requests
+- **SPA Support**: Configured for secure Single Page Application integration
+
+### Password Security
+- **Strong Password Policy**: Requires minimum length, mixed case, numbers, and symbols
+- **Password Hashing**: Uses secure bcrypt hashing for password storage
+- **Password Validation**: Checks against known compromised passwords
+- **Secure Password Reset**: Implements secure password reset functionality
+
+### Request Protection
+- **Rate Limiting**: Prevents brute force attacks on authentication endpoints
+- **CSRF Protection**: Implemented for cookie-based authentication
+- **Middleware Security**: 
+  - `api` middleware group for API-specific protections
+  - `auth:sanctum` middleware for protected routes
+  - Request throttling for API endpoints
+
+### Data Protection
+- **Input Validation**: Strict validation of all incoming requests
+- **SQL Injection Prevention**: Using Laravel's query builder and Eloquent ORM
+- **XSS Protection**: Automatic escaping of output
+- **CORS Configuration**: Configured for secure cross-origin requests
+- **Sensitive Data Hiding**: Automatic hiding of sensitive attributes (password, remember_token)
+
+### HTTP Security
+- **Secure Headers**: Implementation of security-related HTTP headers
+- **TLS Support**: Ready for HTTPS implementation
+- **Content Security Policy**: Can be configured for additional security
+- **Response Sanitization**: Proper formatting and sanitization of API responses
+
+### Best Practices
+- **Environment Configuration**: Secure environment variable handling
+- **Error Handling**: Safe error reporting in production
+- **Logging**: Security-related event logging
+- **Updates**: Regular security patches and updates
 
 ## Architecture
 
 The API follows these architectural patterns and principles:
 - Repository Pattern for data abstraction
 - Service Layer for business logic
-- API Resource Transformers
-- Request Validation
-- Response standardization
-- API versioning (v1)
+- Middleware-based request handling
+- Consistent API response structure
 
 ## Contributing
 
