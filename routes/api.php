@@ -1,31 +1,31 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\V1\AuthController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group.
+|
 */
 
-// Public routes (no middleware)
+// API Version 1
 Route::prefix('v1')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-});
-
-// Routes for SPA (with CSRF protection)
-Route::prefix('v1')->middleware(['api'])->group(function () {
+    // Include authentication routes
+    require base_path('routes/api/v1/auth/routes.php');
+    
+    // Include user management routes
+    require base_path('routes/api/v1/user/routes.php');
+    
+    // Include stock management routes
+    require base_path('routes/api/v1/stock/routes.php');
+    
+    // CSRF cookie route for SPA
     Route::get('/csrf-cookie', function () {
         return response()->json(['message' => 'CSRF cookie set']);
     });
-});
-
-// Protected routes
-Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
-    
-    // Add other protected routes here
 }); 
