@@ -247,3 +247,274 @@ The API follows these architectural patterns and principles:
 ## License
 
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Frontend Integration
+
+### CORS Configuration
+First, ensure your frontend domain is allowed in the CORS configuration. Add your frontend URL to the `allowed_origins` array in `config/cors.php`:
+
+```php
+'allowed_origins' => [
+    'http://localhost:3000', // Your frontend URL
+],
+```
+
+### Frontend Code Examples
+
+#### JavaScript/Fetch
+```javascript
+// Registration
+async function register(userData) {
+    const response = await fetch('http://localhost:8000/api/v1/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify(userData)
+    });
+    return await response.json();
+}
+
+// Login
+async function login(credentials) {
+    const response = await fetch('http://localhost:8000/api/v1/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify(credentials)
+    });
+    return await response.json();
+}
+
+// Protected Route Example
+async function getUserProfile(token) {
+    const response = await fetch('http://localhost:8000/api/v1/user', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        }
+    });
+    return await response.json();
+}
+
+// Logout
+async function logout(token) {
+    const response = await fetch('http://localhost:8000/api/v1/logout', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        }
+    });
+    return await response.json();
+}
+```
+
+#### Axios
+```javascript
+import axios from 'axios';
+
+// Create axios instance
+const api = axios.create({
+    baseURL: 'http://localhost:8000/api/v1',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    }
+});
+
+// Request interceptor for API token
+api.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    error => {
+        return Promise.reject(error);
+    }
+);
+
+// API functions
+export const authService = {
+    // Register
+    register: (userData) => {
+        return api.post('/register', userData);
+    },
+
+    // Login
+    login: (credentials) => {
+        return api.post('/login', credentials);
+    },
+
+    // Get user profile
+    getProfile: () => {
+        return api.get('/user');
+    },
+
+    // Logout
+    logout: () => {
+        return api.post('/logout');
+    }
+};
+```
+
+#### React Example with Context
+```javascript
+import { createContext, useContext, useState } from 'react';
+import axios from 'axios';
+
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem('token'));
+
+    const api = axios.create({
+        baseURL: 'http://localhost:8000/api/v1',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+    });
+
+    // Add token to requests
+    api.interceptors.request.use(config => {
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    });
+
+    const login = async (credentials) => {
+        try {
+            const response = await api.post('/login', credentials);
+            const { user, token } = response.data.data;
+            setUser(user);
+            setToken(token);
+            localStorage.setItem('token', token);
+            return response.data;
+        } catch (error) {
+            throw error.response.data;
+        }
+    };
+
+    const register = async (userData) => {
+        try {
+            const response = await api.post('/register', userData);
+            const { user, token } = response.data.data;
+            setUser(user);
+            setToken(token);
+            localStorage.setItem('token', token);
+            return response.data;
+        } catch (error) {
+            throw error.response.data;
+        }
+    };
+
+    const logout = async () => {
+        try {
+            await api.post('/logout');
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem('token');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, token, login, register, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+// Custom hook to use auth context
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};
+```
+
+#### Usage in React Components
+```javascript
+import { useAuth } from './AuthContext';
+
+// Login Component
+function Login() {
+    const { login } = useAuth();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await login({
+                email: 'user@example.com',
+                password: 'password123'
+            });
+            // Redirect or update UI
+        } catch (error) {
+            // Handle error
+        }
+    };
+
+    return (/* your login form */);
+}
+
+// Protected Component
+function Profile() {
+    const { user, logout } = useAuth();
+
+    if (!user) {
+        return <Navigate to="/login" />;
+    }
+
+    return (
+        <div>
+            <h1>Welcome {user.name}</h1>
+            <button onClick={logout}>Logout</button>
+        </div>
+    );
+}
+```
+
+### Error Handling
+Always handle API errors in your frontend code:
+
+```javascript
+try {
+    const response = await api.post('/login', credentials);
+    // Handle success
+} catch (error) {
+    if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error data:', error.response.data);
+        console.error('Error status:', error.response.status);
+    } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received:', error.request);
+    } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error:', error.message);
+    }
+}
+```
+
+### Security Best Practices
+1. Always store tokens securely (preferably in memory or secure storage)
+2. Clear tokens on logout
+3. Handle token expiration
+4. Use HTTPS in production
+5. Validate and sanitize all user inputs
+6. Implement proper error handling
+7. Use environment variables for API URLs

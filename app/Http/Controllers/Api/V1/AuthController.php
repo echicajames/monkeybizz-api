@@ -20,10 +20,10 @@ class AuthController extends BaseApiController
                 'required',
                 'confirmed',
                 Password::min(8)
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols()
-                    ->uncompromised()
+                    //->mixedCase()
+                    //->numbers()
+                    //->symbols()
+                    //->uncompromised()
             ],
         ]);
 
