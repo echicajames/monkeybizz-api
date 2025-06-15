@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\BaseApiController;
 use App\Models\Stock;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
 class StockController extends BaseApiController
@@ -20,8 +19,9 @@ class StockController extends BaseApiController
     {
         $validator = Validator::make($request->all(), [
             'stock_name' => 'required|string|max:255',
-            'stock_type' => 'required|in:ingredients,machine,tools',
-            'stock_status' => 'boolean'
+            'category' => 'required|in:ingredients,machine,tools',
+            'stock_status' => 'boolean',
+            'stock_code' => 'nullable|string|max:50'
         ]);
 
         if ($validator->fails()) {
@@ -29,10 +29,10 @@ class StockController extends BaseApiController
         }
 
         $stock = Stock::create([
-            'stock_id' => 'STK-' . Str::random(8),
             'stock_name' => $request->stock_name,
-            'stock_type' => $request->stock_type,
+            'category' => $request->category,
             'stock_status' => $request->stock_status ?? true,
+            'stock_code' => $request->stock_code,
             'userid' => $request->user()->id
         ]);
 
@@ -60,8 +60,9 @@ class StockController extends BaseApiController
 
         $validator = Validator::make($request->all(), [
             'stock_name' => 'string|max:255',
-            'stock_type' => 'in:ingredients,machine,tools',
-            'stock_status' => 'boolean'
+            'category' => 'in:ingredients,machine,tools',
+            'stock_status' => 'boolean',
+            'stock_code' => 'nullable|string|max:50'
         ]);
 
         if ($validator->fails()) {
@@ -70,8 +71,9 @@ class StockController extends BaseApiController
 
         $stock->update($request->only([
             'stock_name',
-            'stock_type',
-            'stock_status'
+            'category',
+            'stock_status',
+            'stock_code'
         ]));
 
         return $this->successResponse($stock, 'Stock updated successfully');

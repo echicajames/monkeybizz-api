@@ -10,14 +10,14 @@ class Stock extends Model
     use HasFactory;
 
     protected $primaryKey = 'stock_id';
-    protected $keyType = 'string';
-    public $incrementing = false;
+    protected $keyType = 'integer';
+    public $incrementing = true;
 
     protected $fillable = [
         'stock_id',
         'stock_name',
         'stock_status',
-        'stock_type',
+        'category',
         'userid',
         'date_created'
     ];
