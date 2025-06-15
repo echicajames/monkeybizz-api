@@ -11,7 +11,7 @@ class StockController extends BaseApiController
 {
     public function index()
     {
-        $stocks = Stock::with('user')->get();
+        $stocks = Stock::all();
         return $this->successResponse($stocks);
     }
 
@@ -19,7 +19,7 @@ class StockController extends BaseApiController
     {
         $validator = Validator::make($request->all(), [
             'stock_name' => 'required|string|max:255',
-            'category' => 'required|in:ingredients,machine,tools',
+            'category' => 'required|in:powder,cone,cup,beverages,machine,other',
             'stock_status' => 'boolean',
             'stock_code' => 'nullable|string|max:50'
         ]);
@@ -60,7 +60,7 @@ class StockController extends BaseApiController
 
         $validator = Validator::make($request->all(), [
             'stock_name' => 'string|max:255',
-            'category' => 'in:ingredients,machine,tools',
+            'category' => 'in:powder,cone,cup,beverages,machine,other',
             'stock_status' => 'boolean',
             'stock_code' => 'nullable|string|max:50'
         ]);

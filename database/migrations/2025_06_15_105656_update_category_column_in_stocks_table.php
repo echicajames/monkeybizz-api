@@ -23,8 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('stocks', function (Blueprint $table) {
-            $table->dropColumn('stock_code');
-            $table->enum('category', ['powder', 'cone', 'cup', 'beverages', 'machine', 'other'])->change();
+            //
         });
     }
-}; 
+};
