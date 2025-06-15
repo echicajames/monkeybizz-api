@@ -24,6 +24,9 @@ Route::prefix('v1')->group(function () {
     // Include stock management routes
     require base_path('routes/api/v1/stock/routes.php');
     
+    // Include branch management routes
+    require base_path('routes/api/v1/branch/routes.php');
+    
     // CSRF cookie route for SPA
     Route::get('/csrf-cookie', function () {
         return response()->json(['message' => 'CSRF cookie set']);

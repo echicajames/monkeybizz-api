@@ -32,6 +32,13 @@ routes/api/
 - `PUT /stocks/{id}` - Update stock details (requires authentication)
 - `DELETE /stocks/{id}` - Delete a stock (requires authentication)
 
+### Branch Management Routes (`/api/v1/branches/*`)
+- `GET /branches` - List all branches (requires authentication)
+- `POST /branches` - Create a new branch (requires authentication)
+- `GET /branches/{id}` - Get branch details (requires authentication)
+- `PUT /branches/{id}` - Update branch details (requires authentication)
+- `DELETE /branches/{id}` - Delete a branch (requires authentication)
+
 ## Middleware Groups
 
 ### Public Routes
