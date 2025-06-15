@@ -9,8 +9,12 @@ routes/api/
 │   │   └── routes.php     # Authentication endpoints
 │   ├── user/              # User management routes
 │   │   └── routes.php     # User profile endpoints
-│   └── stock/             # Stock management routes
-│       └── routes.php     # Stock CRUD endpoints
+│   ├── stock/             # Stock management routes
+│   │   └── routes.php     # Stock CRUD endpoints
+│   ├── branch/            # Branch management routes
+│   │   └── routes.php     # Branch CRUD endpoints
+│   └── inventory/         # Inventory management routes
+│       └── routes.php     # Inventory CRUD endpoints
 └── README.md              # This documentation file
 ```
 
@@ -38,6 +42,13 @@ routes/api/
 - `GET /branches/{id}` - Get branch details (requires authentication)
 - `PUT /branches/{id}` - Update branch details (requires authentication)
 - `DELETE /branches/{id}` - Delete a branch (requires authentication)
+
+### Inventory Management Routes (`/api/v1/inventory/*`)
+- `GET /inventory` - List all inventory records (requires authentication)
+- `POST /inventory` - Create a new inventory record (requires authentication)
+- `GET /inventory/{id}` - Get inventory record details (requires authentication)
+- `PUT /inventory/{id}` - Update inventory record details (requires authentication)
+- `DELETE /inventory/{id}` - Delete an inventory record (requires authentication)
 
 ## Middleware Groups
 
