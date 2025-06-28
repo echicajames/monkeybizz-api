@@ -9,9 +9,76 @@ use Illuminate\Support\Facades\Validator;
 
 class InventoryController extends BaseApiController
 {
-    public function index()
+    public function index(Request $request)
     {
-        $inventory = Inventory::with(['branch', 'stock', 'user'])->get();
+        $query = Inventory::with(['branch', 'stock', 'user']);
+
+        // Apply filters
+        $filters = $request->only([
+            'branch_id',
+            'stock_id',
+            'userid',
+            'status',
+            'type',
+            'tag'
+        ]);
+
+        foreach ($filters as $field => $value) {
+            if ($value !== null) {
+                $query->where($field, $value);
+            }
+        }
+
+        // Apply date range filter if provided
+        if ($request->has('date_from')) {
+            $query->where('date_created', '>=', $request->date_from);
+        }
+        if ($request->has('date_to')) {
+            $query->where('date_created', '<=', $request->date_to);
+        }
+
+        // Apply search if provided
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('reason', 'like', "%{$search}%")
+                  ->orWhere('tag', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply sorting
+        $sortField = $request->input('sort_by', 'date_created');
+        $sortDirection = $request->input('sort_direction', 'desc');
+
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+
+        // Validate sort field
+        $allowedSortFields = [
+            'inventory_id',
+            'branch_id',
+            'stock_id',
+            'userid',
+            'quantity',
+            'type',
+            'status',
+            'date_created',
+            'created_at',
+            'updated_at'
+        ];
+
+        if (!in_array($sortField, $allowedSortFields)) {
+            $sortField = 'date_created';
+        }
+
+        $query->orderBy($sortField, $sortDirection);
+
+        // Get paginated results
+        $perPage = $request->input('per_page', 15);
+        $inventory = $query->paginate($perPage);
+
         return $this->successResponse($inventory);
     }
 

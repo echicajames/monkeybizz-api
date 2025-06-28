@@ -45,6 +45,19 @@ routes/api/
 
 ### Inventory Management Routes (`/api/v1/inventory/*`)
 - `GET /inventory` - List all inventory records (requires authentication)
+  - Query Parameters:
+    - `branch_id` - Filter by branch ID
+    - `stock_id` - Filter by stock ID
+    - `userid` - Filter by user ID
+    - `status` - Filter by status (true/false)
+    - `type` - Filter by type (stock_in/stock_out)
+    - `tag` - Filter by tag
+    - `date_from` - Filter by start date
+    - `date_to` - Filter by end date
+    - `search` - Search in reason and tag fields
+    - `sort_by` - Sort by field (default: date_created)
+    - `sort_direction` - Sort direction (asc/desc, default: desc)
+    - `per_page` - Items per page (default: 15)
 - `POST /inventory` - Create a new inventory record (requires authentication)
 - `GET /inventory/{id}` - Get inventory record details (requires authentication)
 - `PUT /inventory/{id}` - Update inventory record details (requires authentication)
