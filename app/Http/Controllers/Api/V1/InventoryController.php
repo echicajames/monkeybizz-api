@@ -13,6 +13,11 @@ class InventoryController extends BaseApiController
     {
         $query = Inventory::with(['branch', 'stock', 'user']);
 
+        // Include trashed records if requested
+        if ($request->has('include_trashed') && $request->include_trashed) {
+            $query->withTrashed();
+        }
+
         // Apply filters
         $filters = $request->only([
             'branch_id',
@@ -166,7 +171,35 @@ class InventoryController extends BaseApiController
             return $this->errorResponse('Inventory record not found', 404);
         }
 
-        $inventory->delete();
+        $inventory->delete(); // This will now perform a soft delete
         return $this->successResponse(null, 'Inventory record deleted successfully');
+    }
+
+    public function restore($id)
+    {
+        $inventory = Inventory::withTrashed()->find($id);
+        
+        if (!$inventory) {
+            return $this->errorResponse('Inventory record not found', 404);
+        }
+
+        if (!$inventory->trashed()) {
+            return $this->errorResponse('Inventory record is not deleted', 400);
+        }
+
+        $inventory->restore();
+        return $this->successResponse($inventory, 'Inventory record restored successfully');
+    }
+
+    public function forceDelete($id)
+    {
+        $inventory = Inventory::withTrashed()->find($id);
+        
+        if (!$inventory) {
+            return $this->errorResponse('Inventory record not found', 404);
+        }
+
+        $inventory->forceDelete();
+        return $this->successResponse(null, 'Inventory record permanently deleted');
     }
 }

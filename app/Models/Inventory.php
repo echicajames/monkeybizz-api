@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Inventory extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'inventory';
     protected $primaryKey = 'inventory_id';
@@ -26,6 +27,7 @@ class Inventory extends Model
 
     protected $casts = [
         'date_created' => 'datetime',
+        'deleted_at' => 'datetime',
         'status' => 'boolean',
         'quantity' => 'integer'
     ];
